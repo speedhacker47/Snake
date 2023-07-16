@@ -1,10 +1,10 @@
 import pygame
-import sys
-from funcs import check_pressed_key
-from funcs import hold_keys   # i put some functions in other python file so that actual code is less messy
+import sys     # i put some functions in other python file so that actual code is less messy
+from funcs import check_pressed_key,hold_keys,collision   
+import random
 
 #Variables
-width , height , border = 500,500 ,50
+width , height , border = 600,600 ,40
 
 red = (255,0,0)
 green = (0,255,0)
@@ -20,39 +20,42 @@ clock = pygame.time.Clock()
 dim = 20 #snake dimension
 
 dir = 'right'  #Initial Direction of head
-speed = 5
+speed = 20
 
 class square():              #MAking class so i can assign properties to variables like snake haead and tail
     def __init__(self,x,y):
         self.x = x              # x,y are coordinate of square shape in 2D space , both value starts from zero from top left
         self.y = y
 
-head = square(border,border)                  # snake head with innitial position
+head = square(border,border)
+food = square(random.randrange(border,width-border-dim,dim),random.randrange(border,height-border-dim,dim))                  # snake head with innitial position
+
+def draw_grid():
+    block_size = dim
+    for x in range(border,width-border,block_size):
+        for y in range(border,height-border,block_size):
+            pygame.draw.rect(win,(90,90,90),(x,y,block_size,block_size),1)
 
 def draw():                
     win.fill(black)
+    draw_grid()
+    pygame.draw.rect(win,green,(head.x,head.y,dim,dim))
+    pygame.draw.rect(win,red,(food.x,food.y,dim,dim))
+    pygame.draw.rect(win,white,(border,border,width-2*border,height-2*border),1)
 
-    pygame.draw.rect(win,red,(head.x,head.y,dim,dim)) #Drawing Snake HEad
-
-    pygame.draw.aaline(win,white,(border,-100),(border,height+100))  #Drawing Borders
-    pygame.draw.aaline(win,white,(-100,border),(width+100,border))
-    pygame.draw.aaline(win,white,(width-border,-100),(width-border,height+100))
-    pygame.draw.aaline(win,white,(-100,height-border),(width+100,height-border))             
-
-    pygame.display.update()    #Update the drawing changes made since last time
-
+    pygame.display.update()
 
 def run_game():         # Head function to run the game
     while True:         #this loop will continue until you press exit , breaking this loop cause closing the window
-        clock.tick(60)
+        pygame.time.delay(100)
         check_head_direction()
-        update_snake_pos()      #first we will update snake pos 
+        update_snake_pos()
+        update_food()      #first we will update snake pos 
         draw()                  # Then draw it
 
         
 def update_snake_pos():
     global dir
-    print(dir)
     if dir == 'right' and head.x < width-border-dim : head.x += speed
     elif dir == 'left' and head.x > border: head.x -= speed
     elif dir == 'up' and head.y > border : head.y -= speed
@@ -61,9 +64,21 @@ def update_snake_pos():
 def check_head_direction():
     global dir
     k = check_pressed_key()
-    if k[0] : dir = 'right'
-    elif k[1] : dir = 'left'
-    elif k[2] : dir = 'up'
-    elif k[3] : dir = 'down'
+    if k[0] and dir is not 'left': dir = 'right'
+    elif k[1] and dir is not 'right': dir = 'left'
+    elif k[2] and dir is not 'down': dir = 'up'
+    elif k[3] and dir is not 'up': dir = 'down'
+    #print(food_pos())
+
+def update_food():
+    while True:
+        if collision(food,head):
+            food.x = random.randrange(border,width-border-dim,dim)
+            food.y = random.randrange(border,height-border-dim,dim)
+        if (food.x,food.y) != (head.x,head.y):
+            break
+
+
+
 
 run_game() #Run

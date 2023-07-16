@@ -36,3 +36,9 @@ def hold_keys():
     elif keys[pygame.K_DOWN]:
          hold[3] = True
     return hold 
+
+def collision(first,second):
+    if (first.x,first.y) == (second.x,second.y):
+        print("Eaten")
+        return True
+    return False
