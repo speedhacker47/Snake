@@ -39,6 +39,5 @@ def hold_keys():
 
 def collision(first,second):
     if (first.x,first.y) == (second.x,second.y):
-        print("Eaten")
         return True
     return False

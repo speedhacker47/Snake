@@ -16,7 +16,6 @@ win = pygame.display.set_mode((width,height)) # store window in a variable
 
 FPS = 144
 clock = pygame.time.Clock()
-speed_of_game = 100   # Less Value Faster Speed
 
 dim = 20 #snake dimension
 
@@ -28,9 +27,9 @@ class square():              #MAking class so i can assign properties to variabl
         self.x = x              # x,y are coordinate of square shape in 2D space , both value starts from zero from top left
         self.y = y
 
-head = square(border+dim,border+dim)  #Dont Start game with border position (Game Over bug)
+head = square(border,border)
 food = square(random.randrange(border,width-border-dim,dim),random.randrange(border,height-border-dim,dim))                  # snake head with innitial position
-tails = [head]
+tails = []
 
 def draw_grid():
     block_size = dim
@@ -45,84 +44,64 @@ def draw():
     pygame.draw.rect(win,red,(food.x,food.y,dim,dim))
     pygame.draw.rect(win,white,(border,border,width-2*border,height-2*border),1)
 
-    for i in range(1,len(tails)):
+    for i in range(len(tails)):
         pygame.draw.rect(win,white,(tails[i].x,tails[i].y,dim,dim))
-        pygame.draw.rect(win,blue,(tails[i].x,tails[i].y,dim,dim),1)  #tail border
 
     pygame.display.update()
 
-def run_game():                 # Head function to run the game
-    global speed_of_game         
-    while True:                     # This loop will continue until you press exit , breaking this loop cause closing the window
-        hold_speed_increase()         # Extra Feature
-        pygame.time.delay(speed_of_game) 
+def run_game():         # Head function to run the game
+    while True:         #this loop will continue until you press exit , breaking this loop cause closing the window
+        pygame.time.delay(100)
         check_head_direction()
         update_tail_pos()
         update_snake_pos()
         update_food()      #first we will update snake pos 
-        draw()
-        if check_game_over(): print ("GAME OVER !")
-        speed_of_game = 100                  # Then draw it
+        draw()                  # Then draw it
 
         
-def update_snake_pos():          # Update the snake position by seeing situation
+def update_snake_pos():
     global dir
     if dir == 'right' and head.x < width-border-dim : head.x += speed
     elif dir == 'left' and head.x > border: head.x -= speed
     elif dir == 'up' and head.y > border : head.y -= speed
     elif dir == 'down' and head.y < height-border-dim : head.y += speed  
 
-def check_head_direction():      #Controls direction of head i.e snake
+def check_head_direction():
     global dir
-    global speed_of_game
     k = check_pressed_key()
     if k[0] and dir is not 'left': dir = 'right'
     elif k[1] and dir is not 'right': dir = 'left'
     elif k[2] and dir is not 'down': dir = 'up'
     elif k[3] and dir is not 'up': dir = 'down'
 
-def update_food():       # Update food position if eaten food
+def update_food():
     while True:
         if collision(food,head):
             make_tails()
             food.x = random.randrange(border,width-border-dim,dim)
             food.y = random.randrange(border,height-border-dim,dim)
         if (food.x,food.y) != (head.x,head.y):
-            break    
-t = 1
+            break
+    #make_tails()
+t = 0
 
-def make_tails():      # Create tails
+def make_tails():
     global t
-    globals()[f"tail_{t}"] = square(tails[-1].x,tails[-1].y) # make tails with name like tail_1,tail_2 etc. then.... 
-    tails.append(eval(f"tail_{t}"))                          # ...put them in tails[] list every tail is of class square 
+    if t == 0 : globals()[f"tail_{t}"] = square(head.x,head.y)
+    else: globals()[f"tail_{t}"] = square(tails[-1].x,tails[-1].y)
+    tails.append(eval(f"tail_{t}"))
     t += 1
+    print(len(tails))
+    print(t)
+    print(tails[0].x,tails[0].y)
 
-def update_tail_pos():              #Update all tails postitions 
-    for i in range(1,len(tails)):
-        tails[-i].x , tails[-i].y = tails[-i-1].x , tails[-i-1].y # gives all tail position of its previous one
+def update_tail_pos():
+    for i in range(len(tails)):
+        print(i)
+        if i == 0: tails[i].x,tails[i].y = head.x,head.y
+        else: tails[-i].x , tails[-i].y = tails[-i-1].x , tails[-i-1].y
     
-def hold_speed_increase():  # Just Extra feature
-    global speed_of_game
-    global dir
-    speed_of_game = 100
-    get = hold_keys()
-    if (dir == 'right' and get[0]) or (dir == 'left' and get[1]):
-        speed_of_game = speed_of_game - 40
-    elif (dir == 'up' and get[2]) or (dir == 'down' and get[3]):
-        speed_of_game -= 40
 
-def check_game_over():  #Check for Game Over
-    for i in range(2,len(tails)):  #CHeck if head is touching any of tails
-        if (head.x,head.y) == (tails[i].x,tails[i].y):
-            return True
-            
-    if head.x >= width-border-dim or head.x <= border: #check snake is crossing border
-        if dir == 'right' or dir == 'left':
-            return True
-    if head.y <= border or head.y >= height-border-dim:
-        if dir == 'up' or dir == 'down':
-            print('some')
-            return True
-    return False
+
 
 run_game() #Run
