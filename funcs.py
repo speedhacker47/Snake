@@ -41,3 +41,4 @@ def collision(first,second):
     if (first.x,first.y) == (second.x,second.y):
         return True
     return False
+
