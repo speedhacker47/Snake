@@ -1,11 +1,13 @@
 import pygame
 from pygame import mixer
 import sys     # i put some functions in other python file so that actual code is less messy
-from funcs import check_pressed_key,hold_keys,collision   
+from functions import check_pressed_key,hold_keys,collision   
 import random
+import os
 
 mixer.init()
-game_over = mixer.Sound("game_over.mp3")
+music_folder = os.path.dirname(os.path.realpath(sys.argv[0]))
+game_over = mixer.Sound(os.path.join(music_folder,"game_over.mp3"))
 food_sound = mixer.Sound("food.mp3")
 mixer.music.set_volume(1.0)
 
